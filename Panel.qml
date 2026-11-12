@@ -59,8 +59,9 @@ Panel {
   }
 
   function close() {
-    setCenterHoverRevealSuppressed(false)
+    // Hide first so nothing below can leave the full-screen overlay stuck open.
     root.controller.hide()
+    setCenterHoverRevealSuppressed(false)
   }
 
   function toggle() {
@@ -74,8 +75,12 @@ Panel {
     return false
   }
 
+  // Third-party widgets get a PluginBarApi whose centerHoverRevealSuppressed
+  // is read-only; assigning it throws, so go through the setter when present.
   function setCenterHoverRevealSuppressed(value) {
-    if (root.bar && "centerHoverRevealSuppressed" in root.bar)
+    if (root.bar && typeof root.bar.setCenterHoverRevealSuppressed === "function")
+      root.bar.setCenterHoverRevealSuppressed(value)
+    else if (root.bar && "centerHoverRevealSuppressed" in root.bar)
       root.bar.centerHoverRevealSuppressed = value
   }
 
